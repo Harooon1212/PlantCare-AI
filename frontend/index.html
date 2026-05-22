@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlantCare AI – Plant Disease Detection</title>
+  <link rel="stylesheet" href="style.css" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <span class="logo-leaf">🌿</span>
+        <span class="logo-text">PlantCare <span class="logo-ai">AI</span></span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#detection" class="nav-link">Detection</a></li>
+        <li><a href="#dataset" class="nav-link">Dataset</a></li>
+        <li><a href="#model" class="nav-link">Model</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="dark-toggle" id="darkToggle" aria-label="Toggle dark mode">
+          <span class="toggle-icon" id="toggleIcon">🌙</span>
+        </button>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content fade-in">
+      <div class="hero-badge">🤖 Powered by Deep Learning</div>
+      <h1 class="hero-title">AI Plant Disease<br><em>Detection</em></h1>
+      <p class="hero-subtitle">Upload a plant leaf image and detect diseases instantly using Artificial Intelligence and
+        Computer Vision.</p>
+      <div class="hero-actions">
+        <a href="#detection" class="btn btn-primary">Start Detection →</a>
+        <a href="#dataset" class="btn btn-outline">View Dataset</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="stat-num" data-target="38">0</span><span class="stat-label">Disease
+            Classes</span></div>
+        <div class="hero-stat"><span class="stat-num" data-target="87">0</span><span class="stat-label">%
+            Accuracy</span></div>
+        <div class="hero-stat"><span class="stat-num" data-target="54306">0</span><span class="stat-label">Training
+            Images</span></div>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll Down</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- DETECTION SECTION -->
+  <section class="section detection-section" id="detection">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">AI Detection</span>
+        <h2 class="section-title">Diagnose Your Plant</h2>
+        <p class="section-sub">Upload a clear photo of the affected leaf for instant AI-powered diagnosis.</p>
+      </div>
+
+      <div class="detection-grid">
+        <!-- Upload Card -->
+        <div class="upload-card" id="uploadCard">
+          <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon-wrap">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="24" fill="var(--green-light)" />
+                <path d="M24 14v12M24 14l-4 4M24 14l4 4" stroke="var(--green-dark)" stroke-width="2.5"
+                  stroke-linecap="round" />
+                <path d="M16 32h16" stroke="var(--green-dark)" stroke-width="2.5" stroke-linecap="round" />
+              </svg>
+            </div>
+            <h3 class="upload-title">Drag & Drop Leaf Image</h3>
+            <p class="upload-sub">or click to browse your files</p>
+            <p class="upload-formats">Supports: JPG, PNG, WEBP</p>
+            <input type="file" id="fileInput" accept="image/*" hidden />
+            <button class="btn btn-outline-green" onclick="document.getElementById('fileInput').click()">Browse
+              Files</button>
+          </div>
+
+          <!-- Preview State -->
+          <div class="preview-state hidden" id="previewState">
+            <div class="preview-wrap">
+              <img id="previewImg" src="" alt="Leaf preview" class="preview-img" />
+              <div class="preview-overlay">
+                <button class="btn btn-sm" onclick="resetUpload()">Change Image</button>
+              </div>
+            </div>
+            <div class="preview-info">
+              <p id="fileName" class="file-name"></p>
+              <p id="fileSize" class="file-size"></p>
+            </div>
+            <button class="btn btn-primary btn-full" id="predictBtn" onclick="runPrediction()">
+              <span class="btn-icon">🔬</span> Predict Disease
+            </button>
+          </div>
+        </div>
+
+        <!-- Result Card -->
+        <div class="result-card hidden" id="resultCard">
+          <!-- Loading -->
+          <div class="loading-state" id="loadingState">
+            <div class="scanner">
+              <div class="scanner-line"></div>
+              <div class="scanner-img-wrap">
+                <img id="scanImg" src="" alt="" class="scanner-img" />
+              </div>
+            </div>
+            <p class="loading-text">Analyzing Plant Image…</p>
+            <div class="loading-dots"><span></span><span></span><span></span></div>
+          </div>
+
+          <!-- Results -->
+          <div class="result-content hidden" id="resultContent">
+            <div class="result-top">
+              <div class="disease-icon" id="diseaseIcon">🍃</div>
+              <div class="disease-header">
+                <h3 class="disease-name" id="diseaseName">—</h3>
+                <div class="disease-meta">
+                  <span class="severity-badge" id="severityBadge">—</span>
+                  <span class="plant-badge" id="plantBadge">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="confidence-section">
+              <div class="conf-label-row">
+                <span>Confidence Score</span>
+                <span class="conf-pct" id="confPct">0%</span>
+              </div>
+              <div class="conf-bar-track">
+                <div class="conf-bar-fill" id="confBarFill"></div>
+              </div>
+            </div>
+
+            <div class="top-preds" id="topPreds"></div>
+
+            <div class="tabs" id="resultTabs">
+              <button class="tab active" data-tab="symptoms">Symptoms</button>
+              <button class="tab" data-tab="treatment">Treatment</button>
+              <button class="tab" data-tab="prevention">Prevention</button>
+            </div>
+            <div class="tab-content active" id="tab-symptoms"></div>
+            <div class="tab-content hidden" id="tab-treatment"></div>
+            <div class="tab-content hidden" id="tab-prevention"></div>
+
+            <button class="btn btn-outline-green btn-full" onclick="resetAll()">🔄 Scan Another Plant</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATASET SECTION -->
+  <section class="section dataset-section" id="dataset">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Training Data</span>
+        <h2 class="section-title">Dataset Overview</h2>
+        <p class="section-sub">Our model is trained on a large-scale annotated plant disease dataset.</p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🌿</div>
+          <div class="stat-count counter" data-target="14">0</div>
+          <div class="stat-label">Plant Species</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🦠</div>
+          <div class="stat-count counter" data-target="38">0</div>
+          <div class="stat-label">Disease Classes</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-icon">📸</div>
+          <div class="stat-count counter" data-target="54306">0</div>
+          <div class="stat-label">Total Images</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-count counter" data-target="87">0</div>
+          <div class="stat-label">Model Accuracy %</div>
+        </div>
+      </div>
+
+      <!-- Plant Categories -->
+      <div class="categories-wrap">
+        <h3 class="sub-heading">Plant Categories & Diseases</h3>
+        <div class="categories-grid">
+          <!-- Tomato Card (10 Classes) -->
+          <div class="category-card">
+            <div class="cat-emoji">🍅</div>
+            <h4 class="cat-name">Tomato</h4>
+            <ul class="cat-diseases">
+              <li>Bacterial Spot</li>
+              <li>Early Blight</li>
+              <li>Late Blight</li>
+              <li>Leaf Mold</li>
+              <li>Septoria Leaf Spot</li>
+              <li>Spider Mites</li>
+              <li>Target Spot</li>
+              <li>Yellow Leaf Curl Virus</li>
+              <li>Mosaic Virus</li>
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:70%"></div>
+            </div>
+          </div>
+
+          <!-- Apple Card (4 Classes) -->
+          <div class="category-card">
+            <div class="cat-emoji">🍎</div>
+            <h4 class="cat-name">Apple</h4>
+            <ul class="cat-diseases">
+              <li>Apple Scab</li>
+              <li>Black Rot</li>
+              <li>Cedar Apple Rust</li>
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:80%"></div>
+            </div>
+          </div>
+
+          <!-- Corn Card (4 Classes) -->
+          <div class="category-card">
+            <div class="cat-emoji">🌽</div>
+            <h4 class="cat-name">Corn</h4>
+            <ul class="cat-diseases">
+              <li>Cercospora Leaf Spot</li>
+              <li>Common Rust</li>
+              <li>Northern Leaf Blight</li>
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:78%"></div>
+            </div>
+          </div>
+
+          <!-- Grape Card (4 Classes) -->
+          <div class="category-card">
+            <div class="cat-emoji">🍇</div>
+            <h4 class="cat-name">Grape</h4>
+            <ul class="cat-diseases">
+              <li>Black Rot</li>
+              <li>Esca (Black Measles)</li>
+              <li>Leaf Blight</li>
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:82%"></div>
+            </div>
+          </div>
+
+          <!-- Potato Card (3 Classes) -->
+          <div class="category-card">
+            <div class="cat-emoji">🥔</div>
+            <h4 class="cat-name">Potato</h4>
+            <ul class="cat-diseases">
+              <li>Early Blight</li>
+              <li>Late Blight</li>
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:75%"></div>
+            </div>
+          </div>
+
+          <!-- Cherry Card (2 Classes) -->
+          <div class="category-card">
+            <div class="cat-emoji">🍒</div>
+            <h4 class="cat-name">Cherry</h4>
+            <ul class="cat-diseases">
+              <li>Powdery Mildew</li>
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:85%"></div>
+            </div>
+          </div>
+
+          <!-- Peach Card (2 Classes) -->
+          <div class="category-card">
+            <div class="cat-emoji">🍑</div>
+            <h4 class="cat-name">Peach</h4>
+            <ul class="cat-diseases">
+              <li>Bacterial Spot</li>
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:92%"></div>
+            </div>
+          </div>
+
+          <!-- Bell Pepper Card (2 Classes) -->
+          <div class="category-card">
+            <div class="cat-emoji">🫑</div>
+            <h4 class="cat-name">Bell Pepper</h4>
+            <ul class="cat-diseases">
+              <li>Bacterial Spot</li>
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:84%"></div>
+            </div>
+          </div>
+
+          <!-- Strawberry Card (2 Classes) -->
+          <div class="category-card">
+            <div class="cat-emoji">🍓</div>
+            <h4 class="cat-name">Strawberry</h4>
+            <ul class="cat-diseases">
+              <li>Leaf Scorch</li>
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:91%"></div>
+            </div>
+          </div>
+
+          <!-- Orange Card (1 Class) -->
+          <div class="category-card">
+            <div class="cat-emoji">🍊</div>
+            <h4 class="cat-name">Orange</h4>
+            <ul class="cat-diseases">
+              <li>Haunglongbing (Citrus Greening)</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:88%"></div>
+            </div>
+          </div>
+
+          <!-- Squash Card (1 Class) -->
+          <div class="category-card">
+            <div class="cat-emoji">🎃</div>
+            <h4 class="cat-name">Squash</h4>
+            <ul class="cat-diseases">
+              <li>Powdery Mildew</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:87%"></div>
+            </div>
+          </div>
+
+          <!-- Blueberry Card (1 Class - Healthy Only) -->
+          <div class="category-card">
+            <div class="cat-emoji">🫐</div>
+            <h4 class="cat-name">Blueberry</h4>
+            <ul class="cat-diseases">
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:90%"></div>
+            </div>
+          </div>
+
+          <!-- Raspberry Card (1 Class - Healthy Only) -->
+          <div class="category-card">
+            <div class="cat-emoji">🍓</div>
+            <h4 class="cat-name">Raspberry</h4>
+            <ul class="cat-diseases">
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:95%"></div>
+            </div>
+          </div>
+
+          <!-- Soybean Card (1 Class - Healthy Only) -->
+          <div class="category-card">
+            <div class="cat-emoji">🫛</div>
+            <h4 class="cat-name">Soybean</h4>
+            <ul class="cat-diseases">
+              <li>Healthy</li>
+            </ul>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width:89%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="gallery-section">
+        <div class="gallery-wrap">
+          <h3 class="sub-heading">Sample Dataset Classes — PlantVillage</h3>
+          <div class="gallery-grid">
+
+            <!-- Tomato Healthy -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Tomato_Healthy.JPG" alt="Tomato Healthy" class="gallery-img">
+              </div>
+              <span>🍅Tomato Healthy</span>
+            </div>
+
+            <!-- Tomato Early Blight -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Tomato Early Blight.JPG" alt="Tomato Early Blight" class="gallery-img">
+              </div>
+              <span>🍅Tomato Early Blight</span>
+            </div>
+
+            <!-- Tomato Late Blight -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Tomato Late Blight.JPG" alt="Tomato Late Blight" class="gallery-img">
+              </div>
+              <span>🍅Tomato Late Blight</span>
+            </div>
+
+            <!-- Tomato Leaf Mold -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Tomato Leaf Mold.JPG" alt="Tomato Leaf Mold" class="gallery-img">
+              </div>
+              <span>🍅Tomato Leaf Mold</span>
+            </div>
+
+            <!-- Corn Healthy -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Corn Healtht.JPG" alt="Corn Healthy" class="gallery-img">
+              </div>
+              <span>🌽Corn Healthy</span>
+            </div>
+
+            <!-- Corn Common Rust -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Corn Common Rust.JPG" alt="Corn Common Rust" class="gallery-img">
+              </div>
+              <span>🌽Corn Common Rust</span>
+            </div>
+
+            <!-- Apple Healthy -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Apple Healthy.JPG" alt="Apple Healthy" class="gallery-img">
+              </div>
+              <span>🍎Apple Healthy</span>
+            </div>
+
+            <!-- Apple Scab -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Apple Scab.JPG" alt="Apple Scab" class="gallery-img">
+              </div>
+              <span>🍎Apple Scab</span>
+            </div>
+
+            <!-- Pepper Bacterial Spot -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Pepper Bacterial Spot.JPG" alt="Pepper Bacterial Spot" class="gallery-img">
+              </div>
+              <span>🫑Pepper Bacterial Spot</span>
+            </div>
+
+            <!-- Pepper Healthy -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Pepper Healthy.JPG" alt="Pepper Healthy" class="gallery-img">
+              </div>
+              <span>🫑Pepper Healthy</span>
+            </div>
+
+            <!-- Potato Early Blight -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Potato Early Blight.JPG" alt="Potato Early Blight" class="gallery-img">
+              </div>
+              <span>🥔Potato Early Blight</span>
+            </div>
+
+            <!-- Potato Late Blight -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Potato Late Blight.JPG" alt="Potato Late Blight" class="gallery-img">
+              </div>
+              <span>🥔Potato Late Blight</span>
+            </div>
+
+            <!-- Citrus Greening -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Citrus Greening.JPG" alt="Citrus Greening" class="gallery-img">
+              </div>
+              <span>🍊Citrus Greening</span>
+            </div>
+
+            <!-- Grape Black Rot -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Grape Black Rot.JPG" alt="Grape Black Rot" class="gallery-img">
+              </div>
+              <span>🍇Grape Black Rot</span>
+            </div>
+
+            <!-- Grape Esca -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Grape Esca.JPG" alt="Grape Esca" class="gallery-img">
+              </div>
+              <span>🍇Grape Esca</span>
+            </div>
+
+            <!-- Blueberry Healthy -->
+            <div class="gallery-card">
+              <div class="gallery-img-container">
+                <img src="images\Blueberry Healthy.JPG" alt="Blueberry Healthy" class="gallery-img">
+              </div>
+              <span>🫐Blueberry Healthy</span>
+            </div>
+
+          </div>
+          <p class="gallery-note">* Actual dataset contains RGB leaf photographs at 224×224 px</p>
+        </div>
+      </section>
+
+      <!-- MODEL SECTION -->
+      <section class="section model-section" id="model">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-tag">AI Architecture</span>
+            <h2 class="section-title">Model Information</h2>
+            <p class="section-sub">Built using state-of-the-art deep learning for high-accuracy plant disease
+              classification.</p>
+          </div>
+
+          <div class="model-grid">
+            <div class="model-card">
+              <div class="model-icon">🧠</div>
+              <h4>Deep Learning Model</h4>
+              <p>MobileNetV2 based on transfer learning with fine-tuned classification layers.</p>
+              <div class="tech-badges">
+                <span class="tech-badge">TensorFlow</span>
+                <span class="tech-badge">Keras</span>
+                <span class="tech-badge">CNN</span>
+              </div>
+            </div>
+            <div class="model-card">
+              <div class="model-icon">🖼️</div>
+              <h4>Image Preprocessing</h4>
+              <p>Images are resized to 224×224, normalized to [0,1] range, and augmented during training.</p>
+              <div class="tech-badges">
+                <span class="tech-badge">224×224 px</span>
+                <span class="tech-badge">Normalization</span>
+                <span class="tech-badge">Augmentation</span>
+              </div>
+            </div>
+            <div class="model-card">
+              <div class="model-icon">⚙️</div>
+              <h4>Training Process</h4>
+              <p>Trained over 40 epochs using Adam optimizer with categorical cross-entropy loss and early stopping.</p>
+              <div class="tech-badges">
+                <span class="tech-badge">Adam Optimizer</span>
+                <span class="tech-badge">40 Epochs</span>
+                <span class="tech-badge">Early Stopping</span>
+              </div>
+            </div>
+            <div class="model-card">
+              <div class="model-icon">📊</div>
+              <h4>Performance Metrics</h4>
+              <p>Evaluated using accuracy, precision, recall, and F1-score on the held-out test set.</p>
+              <div class="tech-badges">
+                <span class="tech-badge">87% Accuracy</span>
+                <span class="tech-badge">F1 Score</span>
+                <span class="tech-badge">Confusion Matrix</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pipeline-wrap">
+            <h3 class="sub-heading">Prediction Pipeline</h3>
+            <div class="pipeline">
+              <div class="pipe-step">
+                <div class="pipe-icon">📷</div>
+                <div class="pipe-label">Upload Image</div>
+              </div>
+              <div class="pipe-arrow">→</div>
+              <div class="pipe-step">
+                <div class="pipe-icon">✂️</div>
+                <div class="pipe-label">Preprocess</div>
+              </div>
+              <div class="pipe-arrow">→</div>
+              <div class="pipe-step">
+                <div class="pipe-icon">🧠</div>
+                <div class="pipe-label">CNN Model</div>
+              </div>
+              <div class="pipe-arrow">→</div>
+              <div class="pipe-step">
+                <div class="pipe-icon">📈</div>
+                <div class="pipe-label">Softmax Output</div>
+              </div>
+              <div class="pipe-arrow">→</div>
+              <div class="pipe-step accent">
+                <div class="pipe-icon">✅</div>
+                <div class="pipe-label">Result</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accuracy-wrap">
+            <h3 class="sub-heading">Real F1-Score by Class — From Test Set Evaluation</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Actual results from
+              classification_report
+              on held-out test set (15% of 54,305 images).</p>
+
+            <div class="accuracy-wrap">
+
+              <div class="acc-group-label">Apple (4 classes)</div>
+
+              <div class="acc-row acc-low">
+                <span>Apple Scab</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="40"></div>
+                </div>
+                <span class="acc-num">40%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Black Rot</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="86"></div>
+                </div>
+                <span class="acc-num">86%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Cedar Apple Rust</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="81"></div>
+                </div>
+                <span class="acc-num">81%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Apple Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="77"></div>
+                </div>
+                <span class="acc-num">77%</span>
+              </div>
+
+              <div class="acc-group-label">Blueberry & Cherry</div>
+
+              <div class="acc-row acc-high">
+                <span>Blueberry Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="88"></div>
+                </div>
+                <span class="acc-num">88%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Cherry Powdery Mildew</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="87"></div>
+                </div>
+                <span class="acc-num">87%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Cherry Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="89"></div>
+                </div>
+                <span class="acc-num">89%</span>
+              </div>
+
+              <div class="acc-group-label">Corn (4 classes)</div>
+
+              <div class="acc-row acc-low">
+                <span>Cercospora / Gray Leaf Spot</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="62"></div>
+                </div>
+                <span class="acc-num">62%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Common Rust</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="99"></div>
+                </div>
+                <span class="acc-num">99%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Northern Leaf Blight</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="76"></div>
+                </div>
+                <span class="acc-num">76%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Corn Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="98"></div>
+                </div>
+                <span class="acc-num">98%</span>
+              </div>
+
+              <div class="acc-group-label">Grape (4 classes)</div>
+
+              <div class="acc-row acc-mid">
+                <span>Black Rot</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="78"></div>
+                </div>
+                <span class="acc-num">78%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Esca (Black Measles)</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="88"></div>
+                </div>
+                <span class="acc-num">88%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Leaf Blight</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="85"></div>
+                </div>
+                <span class="acc-num">85%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Grape Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="83"></div>
+                </div>
+                <span class="acc-num">83%</span>
+              </div>
+
+              <div class="acc-group-label">Orange & Peach</div>
+
+              <div class="acc-row acc-high">
+                <span>Citrus Greening (HLB)</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="98"></div>
+                </div>
+                <span class="acc-num">98%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Peach Bacterial Spot</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="80"></div>
+                </div>
+                <span class="acc-num">80%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Peach Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="85"></div>
+                </div>
+                <span class="acc-num">85%</span>
+              </div>
+
+              <div class="acc-group-label">Pepper & Potato</div>
+
+              <div class="acc-row acc-mid">
+                <span>Pepper Bacterial Spot</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="75"></div>
+                </div>
+                <span class="acc-num">75%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Pepper Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="86"></div>
+                </div>
+                <span class="acc-num">86%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Potato Early Blight</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="88"></div>
+                </div>
+                <span class="acc-num">88%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Potato Late Blight</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="84"></div>
+                </div>
+                <span class="acc-num">84%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Potato Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="76"></div>
+                </div>
+                <span class="acc-num">76%</span>
+              </div>
+
+              <div class="acc-group-label">Strawberry & Others</div>
+
+              <div class="acc-row acc-mid">
+                <span>Strawberry Leaf Scorch</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="82"></div>
+                </div>
+                <span class="acc-num">82%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Strawberry Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="89"></div>
+                </div>
+                <span class="acc-num">89%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Soybean Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="92"></div>
+                </div>
+                <span class="acc-num">92%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Squash Powdery Mildew</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="90"></div>
+                </div>
+                <span class="acc-num">90%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Raspberry Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="91"></div>
+                </div>
+                <span class="acc-num">91%</span>
+              </div>
+
+              <div class="acc-group-label">Tomato (10 classes)</div>
+
+              <div class="acc-row acc-mid">
+                <span>Bacterial Spot</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="79"></div>
+                </div>
+                <span class="acc-num">79%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Early Blight</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="77"></div>
+                </div>
+                <span class="acc-num">77%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Late Blight</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="82"></div>
+                </div>
+                <span class="acc-num">82%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Leaf Mold</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="83"></div>
+                </div>
+                <span class="acc-num">83%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Septoria Leaf Spot</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="80"></div>
+                </div>
+                <span class="acc-num">80%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Spider Mites</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="86"></div>
+                </div>
+                <span class="acc-num">86%</span>
+              </div>
+
+              <div class="acc-row acc-mid">
+                <span>Target Spot</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="78"></div>
+                </div>
+                <span class="acc-num">78%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Yellow Leaf Curl Virus</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="96"></div>
+                </div>
+                <span class="acc-num">96%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Mosaic Virus</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="91"></div>
+                </div>
+                <span class="acc-num">91%</span>
+              </div>
+
+              <div class="acc-row acc-high">
+                <span>Tomato Healthy</span>
+                <div class="acc-track">
+                  <div class="acc-fill" data-width="90"></div>
+                </div>
+                <span class="acc-num">90%</span>
+              </div>
+
+              <div class="acc-legend">
+                <span class="legend-dot legend-high"></span>
+                <span>High ≥88%</span>
+
+                <span class="legend-dot legend-mid"></span>
+                <span>Good 75–87%</span>
+
+                <span class="legend-dot legend-low"></span>
+                <span>Needs Improvement &lt;75%</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT SECTION -->
+      <section class="section about-section" id="about">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-tag">About</span>
+            <h2 class="section-title">About This Project</h2>
+            <p class="section-sub">A final semester project combining AI and agriculture to fight plant diseases.</p>
+          </div>
+          <div class="about-grid">
+            <div class="about-card">
+              <div class="about-icon">🎓</div>
+              <h4>Semester Project</h4>
+              <p>Developed as a final year computer science project applying deep learning and computer vision to solve
+                a
+                real-world agricultural problem.</p>
+            </div>
+            <div class="about-card">
+              <div class="about-icon">🌱</div>
+              <h4>Problem Being Solved</h4>
+              <p>Plant diseases cause up to 40% crop loss worldwide. Early automated detection can save harvests and
+                support
+                farmers without expert knowledge.</p>
+            </div>
+            <div class="about-card">
+              <div class="about-icon">🔬</div>
+              <h4>Technology Stack</h4>
+              <p>HTML, CSS, JavaScript for the frontend. Python, Flask, TensorFlow, and Keras power the backend AI
+                prediction engine.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="footer">
+        <div class="container footer-inner">
+          <div class="footer-logo">
+            <span class="logo-leaf">🌿</span>
+            <span class="logo-text">PlantCare <span class="logo-ai">AI</span></span>
+          </div>
+          <div class="footer-center">
+            <p>Plant Disease Detection System</p>
+            <p class="footer-sub">Final Semester Project · Computer Science · Deep Learning & Computer Vision</p>
+          </div>
+          <div class="footer-right">
+            <p>Built with 💚 using HTML, CSS &amp; JS</p>
+          </div>
+        </div>
+      </footer>
+
+      <script src="app.js"></script>
+</body>
+
+</html>
