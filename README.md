@@ -85,11 +85,13 @@ model = Sequential([
 
 ### Disease Detection
 
-(Add screenshot here)
+<img width="1886" height="864" alt="image" src="https://github.com/user-attachments/assets/21ce33a4-75ff-4bfb-99c4-8cc71e4de7d1" />
+
 
 ### Prediction Results
 
-(Add screenshot here)
+![Uploading image.png…]()
+
 
 ---
 
