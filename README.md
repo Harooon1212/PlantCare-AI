@@ -90,7 +90,8 @@ model = Sequential([
 
 ### Prediction Results
 
-![Uploading image.png…]()
+<img width="1886" height="864" alt="image" src="https://github.com/user-attachments/assets/8c1eb697-b2c1-47b5-ba57-13016d3de928" />
+
 
 
 ---
@@ -139,6 +140,4 @@ Example plant leaf images are included in the project for testing.
 
 ---
 
-## Author
 
-Muhammad Haroon
